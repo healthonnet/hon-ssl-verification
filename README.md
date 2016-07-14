@@ -3,6 +3,9 @@ hon-ssl-verification
 
 Check good health of server and SSL certificate from a given domain name.
 
+This package uses https://github.com/keithws/node-ssllabs which is an implementation
+of the [SSL Labs](https://www.ssllabs.com) API.
+
 Installation
 ------------
 
@@ -19,8 +22,8 @@ $ DOMAIN_NAME="domain.to.test" npm start
 
 ### Options
 
-* ```DOMAIN_NAME``` domain to test
-* ```MINIMUM_GRADE``` minimum grade to pass (default C)
+* `DOMAIN_NAME` domain to test
+* `MINIMUM_GRADE` minimum grade to pass (default `C`)
 
 License
 -------

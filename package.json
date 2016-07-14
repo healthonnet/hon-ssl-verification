@@ -9,6 +9,9 @@
   },
   "author": "Health On the Net",
   "license": "MIT",
+  "repository": {
+    "git": "https://github.com/healthonnet/hon-ssl-verification"
+  },
   "dependencies": {
     "node-ssllabs": "^0.4.3"
   }
