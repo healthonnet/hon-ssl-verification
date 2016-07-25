@@ -20,10 +20,27 @@ Usage
 $ DOMAIN_NAME="domain.to.test" npm start
 ```
 
-### Options
+Options
+-------
 
-* `DOMAIN_NAME` domain to test
-* `MINIMUM_GRADE` minimum grade to pass (default `C`)
+| Variable        | Description    |
+|-----------------|----------------|
+| `DOMAIN_NAME`   | domain to test
+| `MINIMUM_GRADE` | minimum grade to pass (default `C`)
+| `ALERT_MONTHLY` | first alert date (default `30` days)
+| `ALERT_DAILY`   | daily alerts (default `7` days)
+| `MAIL_URI`      | resource to webmail server
+| `MAIL_API`      | resource API key (optional)
+| `MAIL_FROM`     | from email
+| `MAIL_TO`       | email recipients
+| `VERBOSE`       | output more details
+| `EXIT_ON_EXPIRED_DATE` | if set, will return exit 1, if certificate has expired
+| `EXIT_ON_INSUFFICIENT_GRADE` | if set, will return exit 1, if certificate does not meet the minimum grade
+
+Developers
+----------
+
+* Pierre REPETTO-ANDIPATIN <pierre.repetto@healthonnet.org>
 
 License
 -------

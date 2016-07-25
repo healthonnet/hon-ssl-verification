@@ -1,31 +1,124 @@
 'use strict';
 
+require('dotenv').config({silent: true});
 var ssllabs = require('node-ssllabs');
+var nodemailer = require('nodemailer');
+var mg = require('nodemailer-mailgun-transport');
+var moment = require('moment');
+var fs = require('fs');
+var app = require('./src/app.js');
 
-var grades = ['A+', 'A', 'A-', 'B', 'C', 'D', 'E', 'F', 'T', 'M'];
 var minimumGrade = process.env.MINIMUM_GRADE || 'C';
+var soonAlert = process.env.ALERT_MONTHLY || 30;
+var laterAlert = process.env.ALERT_DAILY || 7;
 
 var options = {
   host: process.env.DOMAIN_NAME,
   publish: false,
-  startNew: true,
+  // TODO: remove comments
+  // startNew: true,
 };
 
-ssllabs.scan(process.env.DOMAIN_NAME, function(err, host) {
-  var date = new Date(host.endpoints[0].details.cert.notAfter);
+var mailOptions = {
+  from: process.env.MAIL_FROM || '',
+  to: process.env.MAIL_TO || '',
+  'h:Reply-To': process.env.MAIL_FROM || '',
+};
+var nodemailerMailgun = nodemailer.createTransport(mg({
+  auth: {
+    api_key: process.env.MAIL_API,
+    domain: process.env.MAIL_URI,
+  }
+}));
+
+ssllabs.scan(options, function(err, host) {
+  var expiry = new Date(host.endpoints[0].details.cert.notAfter);
   var grade = host.endpoints[0].grade;
   var result = {
     grade: grade,
-    expiry: date.toString(),
+    expiry: expiry.toString(),
   };
-  console.log(JSON.stringify(result, null, 2));
-  if (date < new Date()) {
-    console.error('Certificate expired ' + date.toString());
-    process.exit(1);
+
+  // Output results
+  if (process.env.VERBOSE) {
+    console.log(JSON.stringify(result, null, 2));
   }
-  if (grades.indexOf(grade) > grades.indexOf(minimumGrade)) {
-    console.error('Certificate has not met minimum grade requirement (' +
+
+  // Certificate has expired
+  if (app.isExpired(expiry)) {
+    console.error('Certificate expired ' + expiry.toString());
+    if (process.env.EXIT_ON_EXPIRED_DATE) {
+      process.exit(1);
+    }
+  }
+
+  // Certificate is going to expire soon
+  if (app.isSoonExpiring(expiry, soonAlert)) {
+    mailOptions.subject = 'SSL Certificate verification - ' +
+      process.env.DOMAIN_NAME +
+      ' - SSL certificate is going to expires in less than ' +
+      soonAlert + ' days';
+    if (process.env.VERBOSE) {
+      console.log(mailOptions.subject);
+    }
+    if (process.env.MAIL_URI) {
+      app.loadFile(
+        'src/mail.html',
+        mailOptions,
+        process.env.DOMAIN_NAME,
+        'less than ' + laterAlert + ' days',
+        function(err, options) {
+        if (err) {
+          console.error('Couldn\'t load file for sending email.');
+          process.exit(1);
+        }
+        nodemailerMailgun.sendMail(options, function(err, info) {
+          if (err) {
+            console.error('Couldn\'t send email.');
+            process.exit(1);
+          }
+          console.log('Email has been sent.');
+        });
+      });
+    }
+  }
+
+  // Certificate is going to expire later
+  if (app.isSoonExpiring(expiry, laterAlert)) {
+    mailOptions.subject = 'SSL Certificate verification - ' +
+      process.env.DOMAIN_NAME +
+      ' - SSL certificate is going to expires in ' + laterAlert + ' days';
+    if (process.env.VERBOSE) {
+      console.log(mailOptions.subject);
+    }
+    if (process.env.MAIL_URI) {
+      app.loadFile(
+        'src/mail.html',
+        mailOptions,
+        process.env.DOMAIN_NAME,
+        laterAlert + ' days',
+        function(err, options) {
+        if (err) {
+          console.error('Couldn\'t load file for sending email.');
+          process.exit(1);
+        }
+        nodemailerMailgun.sendMail(options, function(err, info) {
+          if (err) {
+            console.error('Couldn\'t send email.');
+            process.exit(1);
+          }
+          console.log('Email has been sent.');
+        });
+      });
+    }
+  }
+
+  // Grade verification
+  if (app.isGradeSufficient(minimumGrade, grade)) {
+    console.log('Certificate has not met minimum grade requirement (' +
       minimumGrade + ') with grade: ' + grade);
-    process.exit(1);
+    if (process.env.EXIT_ON_INSUFFICIENT_GRADE) {
+      process.exit(1);
+    }
   }
 });

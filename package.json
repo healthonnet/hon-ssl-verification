@@ -4,8 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "jscs": "jscs index.js src/*.js test/*.js",
+    "jshint": "jshint index.js src/*.js test/*.js",
     "start": "node index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "npm run jscs && npm run jshint && istanbul cover _mocha test/*.js -- -R spec"
   },
   "author": "Health On the Net",
   "license": "MIT",
@@ -13,6 +15,17 @@
     "git": "https://github.com/healthonnet/hon-ssl-verification"
   },
   "dependencies": {
-    "node-ssllabs": "^0.4.3"
+    "dotenv": "^2.0.0",
+    "moment": "^2.14.1",
+    "node-ssllabs": "^0.4.3",
+    "nodemailer": "^2.5.0",
+    "nodemailer-mailgun-transport": "git+https://github.com/orliesaurus/nodemailer-mailgun-transport.git"
+  },
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "istanbul": "^0.4.4",
+    "jscs": "^3.0.7",
+    "jshint": "^2.9.2",
+    "mocha": "^2.5.3"
   }
 }
