@@ -15,8 +15,7 @@ var laterAlert = process.env.ALERT_DAILY || 7;
 var options = {
   host: process.env.DOMAIN_NAME,
   publish: false,
-  // TODO: remove comments
-  // startNew: true,
+  startNew: true,
 };
 
 var mailOptions = {
@@ -114,7 +113,7 @@ ssllabs.scan(options, function(err, host) {
   }
 
   // Grade verification
-  if (app.isGradeSufficient(minimumGrade, grade)) {
+  if (!app.isGradeSufficient(minimumGrade, grade)) {
     console.log('Certificate has not met minimum grade requirement (' +
       minimumGrade + ') with grade: ' + grade);
     if (process.env.EXIT_ON_INSUFFICIENT_GRADE) {
