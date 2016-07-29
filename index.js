@@ -7,6 +7,7 @@ var mg = require('nodemailer-mailgun-transport');
 var moment = require('moment');
 var fs = require('fs');
 var app = require('./src/app.js');
+var whois = require('whois-json');
 
 var minimumGrade = process.env.MINIMUM_GRADE || 'C';
 var soonAlert = process.env.ALERT_MONTHLY || 30;
@@ -30,10 +31,12 @@ var nodemailerMailgun = nodemailer.createTransport(mg({
   }
 }));
 
+// Scan for certificate
 ssllabs.scan(options, function(err, host) {
   var expiry = new Date(host.endpoints[0].details.cert.notAfter);
   var grade = host.endpoints[0].grade;
   var result = {
+    type: 'SSL',
     grade: grade,
     expiry: expiry.toString(),
   };
@@ -118,6 +121,81 @@ ssllabs.scan(options, function(err, host) {
       minimumGrade + ') with grade: ' + grade);
     if (process.env.EXIT_ON_INSUFFICIENT_GRADE) {
       process.exit(1);
+    }
+  }
+});
+
+// Scan for DNS validity
+whois(process.env.DOMAIN_NAME, function(err, data) {
+  var expiry = new Date(Date.parse(data.registryExpiryDate));
+  var result = {
+    type: 'DNS',
+    expiry: expiry.toString(),
+  };
+
+  // Output results
+  if (process.env.VERBOSE) {
+    console.log(JSON.stringify(result, null, 2));
+  }
+
+  // DNS is going to expire soon
+  if (app.isSoonExpiring(expiry, soonAlert)) {
+    mailOptions.subject = 'DNS verification - ' +
+      process.env.DOMAIN_NAME +
+      ' - DNS is going to expires in less than ' +
+      soonAlert + ' days';
+    if (process.env.VERBOSE) {
+      console.log(mailOptions.subject);
+    }
+    if (process.env.MAIL_URI) {
+      app.loadFile(
+        'src/mail-dns.html',
+        mailOptions,
+        process.env.DOMAIN_NAME,
+        'less than ' + laterAlert + ' days',
+        function(err, options) {
+        if (err) {
+          console.error('Couldn\'t load file for sending email.');
+          process.exit(1);
+        }
+        nodemailerMailgun.sendMail(options, function(err, info) {
+          if (err) {
+            console.error('Couldn\'t send email.');
+            process.exit(1);
+          }
+          console.log('Email has been sent.');
+        });
+      });
+    }
+  }
+
+  // Certificate is going to expire later
+  if (app.isSoonExpiring(expiry, laterAlert)) {
+    mailOptions.subject = 'DNS verification - ' +
+      process.env.DOMAIN_NAME +
+      ' - DNS is going to expires in ' + laterAlert + ' days';
+    if (process.env.VERBOSE) {
+      console.log(mailOptions.subject);
+    }
+    if (process.env.MAIL_URI) {
+      app.loadFile(
+        'src/mail-dns.html',
+        mailOptions,
+        process.env.DOMAIN_NAME,
+        laterAlert + ' days',
+        function(err, options) {
+        if (err) {
+          console.error('Couldn\'t load file for sending email.');
+          process.exit(1);
+        }
+        nodemailerMailgun.sendMail(options, function(err, info) {
+          if (err) {
+            console.error('Couldn\'t send email.');
+            process.exit(1);
+          }
+          console.log('Email has been sent.');
+        });
+      });
     }
   }
 });

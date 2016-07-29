@@ -19,7 +19,8 @@
     "moment": "^2.14.1",
     "node-ssllabs": "^0.4.3",
     "nodemailer": "^2.5.0",
-    "nodemailer-mailgun-transport": "git+https://github.com/orliesaurus/nodemailer-mailgun-transport.git"
+    "nodemailer-mailgun-transport": "git+https://github.com/orliesaurus/nodemailer-mailgun-transport.git",
+    "whois-json": "^1.0.1"
   },
   "devDependencies": {
     "chai": "^3.5.0",
