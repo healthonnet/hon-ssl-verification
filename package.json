@@ -8,7 +8,7 @@
     "jshint": "jshint index.js src/*.js test/*.js",
     "start": "node index.js",
     "test": "npm run jscs && npm run jshint && istanbul cover _mocha test/*.js -- -R spec",
-    "test-ci": "npm run jscs && npm run jshint && istanbul cover _mocha --report lcovonly test/*.js -- -R spec && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js && rm -rf ./coverage"
+    "test-ci": "./node_modules/istanbul/lib/cli.js cover ./node_modules/mocha/bin/_mocha -- -R spec test/*.js && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js"
   },
   "author": "Health On the Net",
   "license": "MIT",
