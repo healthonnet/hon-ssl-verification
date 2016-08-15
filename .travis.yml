@@ -4,6 +4,4 @@ node_js:
   - "6.1"
   - "6.2"
   - "6.3"
-scripts: {
-  "test": "npm test-ci"
-},
+scripts: "npm test-ci"
