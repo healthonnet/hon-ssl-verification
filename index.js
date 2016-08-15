@@ -127,6 +127,10 @@ ssllabs.scan(options, function(err, host) {
 
 // Scan for DNS validity
 whois(process.env.DOMAIN_NAME, function(err, data) {
+  if (err) {
+    console.log(err);
+    process.exit(1);
+  }
   var expiry = new Date(Date.parse(data.registryExpiryDate));
   var result = {
     type: 'DNS',
