@@ -1,6 +1,9 @@
 hon-ssl-verification
 ====================
 
+[![Build Status](https://travis-ci.org/healthonnet/hon-ssl-verification.svg?branch=master)](https://travis-ci.org/healthonnet/hon-ssl-verification)
+[![Coverage Status](https://coveralls.io/repos/github/healthonnet/hon-ssl-verification/badge.svg?branch=master)](https://coveralls.io/github/healthonnet/hon-ssl-verification?branch=master)
+
 Check good health of server and SSL certificate from a given domain name.
 
 This package uses https://github.com/keithws/node-ssllabs which is an implementation

@@ -7,7 +7,8 @@
     "jscs": "jscs index.js src/*.js test/*.js",
     "jshint": "jshint index.js src/*.js test/*.js",
     "start": "node index.js",
-    "test": "npm run jscs && npm run jshint && istanbul cover _mocha test/*.js -- -R spec"
+    "test": "npm run jscs && npm run jshint && istanbul cover _mocha test/*.js -- -R spec",
+    "test-ci": "npm run jscs && npm run jshint && istanbul cover _mocha --report lcovonly test/*.js -- -R spec && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js && rm -rf ./coverage"
   },
   "author": "Health On the Net",
   "license": "MIT",
@@ -24,9 +25,11 @@
   },
   "devDependencies": {
     "chai": "^3.5.0",
+    "coveralls": "^2.11.12",
     "istanbul": "^0.4.4",
     "jscs": "^3.0.7",
     "jshint": "^2.9.2",
-    "mocha": "^2.5.3"
+    "mocha": "^2.5.3",
+    "mocha-lcov-reporter": "^1.2.0"
   }
 }
