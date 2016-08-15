@@ -54,4 +54,4 @@ License
 
 Copyright (C) 2016 Health On the Net
 
-This program is distributed under the MIT (X11) License: http://www.opensource.org/licenses/mit-license.php
+This program is distributed under the MIT License.
