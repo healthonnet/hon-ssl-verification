@@ -131,15 +131,24 @@ whois(process.env.DOMAIN_NAME, function(err, data) {
     console.log(err);
     process.exit(1);
   }
-  var expiry = new Date(Date.parse(data.registryExpiryDate));
+
   var result = {
     type: 'DNS',
-    expiry: expiry.toString(),
+    expiry: 'No Data',
   };
+  var expiry;
+
+  if (data.registryExpiryDate) {
+    expiry = new Date(Date.parse(data.registryExpiryDate));
+    expiry = expiry.toString();
+  }
 
   // Output results
   if (process.env.VERBOSE) {
     console.log(JSON.stringify(result, null, 2));
+    if (!expiry) {
+      process.exit(0);
+    }
   }
 
   // DNS is going to expire soon
