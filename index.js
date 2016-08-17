@@ -68,7 +68,7 @@ ssllabs.scan(options, function(err, host) {
         'src/mail.html',
         mailOptions,
         process.env.DOMAIN_NAME,
-        'less than ' + laterAlert + ' days',
+        'less than ' + soonAlert + ' days',
         function(err, options) {
         if (err) {
           console.error('Couldn\'t load file for sending email.');
