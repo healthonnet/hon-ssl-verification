@@ -136,23 +136,23 @@ whois(process.env.DOMAIN_NAME, function(err, data) {
     type: 'DNS',
     expiry: 'No Data',
   };
-  var expiry;
 
   if (data.registryExpiryDate) {
-    expiry = new Date(Date.parse(data.registryExpiryDate));
-    expiry = expiry.toString();
+    console.log('foo');
+    result.expiry = new Date(Date.parse(data.registryExpiryDate));
+    result.expiry = result.expiry.toString();
   }
 
   // Output results
   if (process.env.VERBOSE) {
     console.log(JSON.stringify(result, null, 2));
-    if (!expiry) {
-      process.exit(0);
+    if (result.expiry === 'No Data') {
+      return;
     }
   }
 
   // DNS is going to expire soon
-  if (app.isSoonExpiring(expiry, soonAlert)) {
+  if (app.isSoonExpiring(result.expiry, soonAlert)) {
     mailOptions.subject = 'DNS verification - ' +
       process.env.DOMAIN_NAME +
       ' - DNS is going to expires in less than ' +
@@ -183,7 +183,7 @@ whois(process.env.DOMAIN_NAME, function(err, data) {
   }
 
   // Certificate is going to expire later
-  if (app.isSoonExpiring(expiry, laterAlert)) {
+  if (app.isSoonExpiring(result.expiry, laterAlert)) {
     mailOptions.subject = 'DNS verification - ' +
       process.env.DOMAIN_NAME +
       ' - DNS is going to expires in ' + laterAlert + ' days';
