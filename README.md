@@ -12,6 +12,9 @@ of the [SSL Labs](https://www.ssllabs.com) API.
 Installation
 ------------
 
+hon-ssl-verification has been tested on node v0.12 up to v6.3. Due to node-ssllabs failing in node v0.10,
+hon-ssl-verification does not work for this version.
+
 ```bash
 $ npm install
 ```
