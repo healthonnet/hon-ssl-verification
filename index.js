@@ -10,8 +10,8 @@ var app = require('./src/app.js');
 var whois = require('whois-json');
 
 var minimumGrade = process.env.MINIMUM_GRADE || 'C';
-var soonAlert = process.env.ALERT_MONTHLY || 30;
-var laterAlert = process.env.ALERT_DAILY || 7;
+var laterAlert = process.env.ALERT_MONTHLY || 30;
+var soonAlert = process.env.ALERT_DAILY || 7;
 
 var options = {
   host: process.env.DOMAIN_NAME,
@@ -86,7 +86,7 @@ ssllabs.scan(options, function(err, host) {
   }
 
   // Certificate is going to expire later
-  if (app.isSoonExpiring(expiry, laterAlert)) {
+  if (app.isLaterExpiring(expiry, laterAlert)) {
     mailOptions.subject = 'SSL Certificate verification - ' +
       process.env.DOMAIN_NAME +
       ' - SSL certificate is going to expires in ' + laterAlert + ' days';
@@ -183,7 +183,7 @@ whois(process.env.DOMAIN_NAME, function(err, data) {
   }
 
   // Certificate is going to expire later
-  if (app.isSoonExpiring(result.expiry, laterAlert)) {
+  if (app.isLaterExpiring(result.expiry, laterAlert)) {
     mailOptions.subject = 'DNS verification - ' +
       process.env.DOMAIN_NAME +
       ' - DNS is going to expires in ' + laterAlert + ' days';
