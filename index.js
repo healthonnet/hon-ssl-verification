@@ -10,8 +10,8 @@ var app = require('./src/app.js');
 var whois = require('whois-json');
 
 var minimumGrade = process.env.MINIMUM_GRADE || 'C';
-var laterAlert = process.env.ALERT_MONTHLY || 30;
-var soonAlert = process.env.ALERT_DAILY || 7;
+var laterAlert = parseInt(process.env.ALERT_MONTHLY) || 30;
+var soonAlert = parseInt(process.env.ALERT_DAILY) || 7;
 
 var options = {
   host: process.env.DOMAIN_NAME,
