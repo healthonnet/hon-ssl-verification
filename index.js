@@ -125,90 +125,92 @@ ssllabs.scan(options, function(err, host) {
   }
 });
 
-// Scan for DNS validity
-whois(process.env.DOMAIN_NAME, function(err, data) {
-  if (err) {
-    console.log(err);
-    process.exit(1);
-  }
-
-  var result = {
-    type: 'DNS',
-    expiry: 'No Data',
-  };
-
-  if (data.registryExpiryDate) {
-    console.log('foo');
-    result.expiry = new Date(Date.parse(data.registryExpiryDate));
-    result.expiry = result.expiry.toString();
-  }
-
-  // Output results
-  if (process.env.VERBOSE) {
-    console.log(JSON.stringify(result, null, 2));
-    if (result.expiry === 'No Data') {
-      return;
+if (!process.env.IGNORE_DNS_CHECK) {
+  // Scan for DNS validity
+  whois(process.env.DOMAIN_NAME, function(err, data) {
+    if (err) {
+      console.log(err);
+      process.exit(1);
     }
-  }
 
-  // DNS is going to expire soon
-  if (app.isSoonExpiring(result.expiry, soonAlert)) {
-    mailOptions.subject = 'DNS verification - ' +
+    var result = {
+      type: 'DNS',
+      expiry: 'No Data',
+    };
+
+    if (data.registryExpiryDate) {
+      console.log('foo');
+      result.expiry = new Date(Date.parse(data.registryExpiryDate));
+      result.expiry = result.expiry.toString();
+    }
+
+    // Output results
+    if (process.env.VERBOSE) {
+      console.log(JSON.stringify(result, null, 2));
+      if (result.expiry === 'No Data') {
+        return;
+      }
+    }
+
+    // DNS is going to expire soon
+    if (app.isSoonExpiring(result.expiry, soonAlert)) {
+      mailOptions.subject = 'DNS verification - ' +
       process.env.DOMAIN_NAME +
       ' - DNS is going to expires in less than ' +
       soonAlert + ' days';
-    if (process.env.VERBOSE) {
-      console.log(mailOptions.subject);
+      if (process.env.VERBOSE) {
+        console.log(mailOptions.subject);
+      }
+      if (process.env.MAIL_URI) {
+        app.loadFile(
+          'src/mail-dns.html',
+          mailOptions,
+          process.env.DOMAIN_NAME,
+          'less than ' + laterAlert + ' days',
+          function(err, options) {
+            if (err) {
+              console.error('Couldn\'t load file for sending email.');
+              process.exit(1);
+            }
+            nodemailerMailgun.sendMail(options, function(err, info) {
+              if (err) {
+                console.error('Couldn\'t send email.');
+                process.exit(1);
+              }
+              console.log('Email has been sent.');
+            });
+          });
+      }
     }
-    if (process.env.MAIL_URI) {
-      app.loadFile(
-        'src/mail-dns.html',
-        mailOptions,
-        process.env.DOMAIN_NAME,
-        'less than ' + laterAlert + ' days',
-        function(err, options) {
-        if (err) {
-          console.error('Couldn\'t load file for sending email.');
-          process.exit(1);
-        }
-        nodemailerMailgun.sendMail(options, function(err, info) {
-          if (err) {
-            console.error('Couldn\'t send email.');
-            process.exit(1);
-          }
-          console.log('Email has been sent.');
-        });
-      });
-    }
-  }
 
-  // Certificate is going to expire later
-  if (app.isLaterExpiring(result.expiry, laterAlert)) {
-    mailOptions.subject = 'DNS verification - ' +
+    // Certificate is going to expire later
+    if (app.isLaterExpiring(result.expiry, laterAlert)) {
+      mailOptions.subject = 'DNS verification - ' +
       process.env.DOMAIN_NAME +
       ' - DNS is going to expires in ' + laterAlert + ' days';
-    if (process.env.VERBOSE) {
-      console.log(mailOptions.subject);
+      if (process.env.VERBOSE) {
+        console.log(mailOptions.subject);
+      }
+      if (process.env.MAIL_URI) {
+        app.loadFile(
+          'src/mail-dns.html',
+          mailOptions,
+          process.env.DOMAIN_NAME,
+          laterAlert + ' days',
+          function(err, options) {
+            if (err) {
+              console.error('Couldn\'t load file for sending email.');
+              process.exit(1);
+            }
+            nodemailerMailgun.sendMail(options, function(err, info) {
+              if (err) {
+                console.error('Couldn\'t send email.');
+                process.exit(1);
+              }
+              console.log('Email has been sent.');
+            });
+          });
+      }
     }
-    if (process.env.MAIL_URI) {
-      app.loadFile(
-        'src/mail-dns.html',
-        mailOptions,
-        process.env.DOMAIN_NAME,
-        laterAlert + ' days',
-        function(err, options) {
-        if (err) {
-          console.error('Couldn\'t load file for sending email.');
-          process.exit(1);
-        }
-        nodemailerMailgun.sendMail(options, function(err, info) {
-          if (err) {
-            console.error('Couldn\'t send email.');
-            process.exit(1);
-          }
-          console.log('Email has been sent.');
-        });
-      });
-    }
-  }
-});
+  });
+}
